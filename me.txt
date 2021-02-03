@@ -1,0 +1,10 @@
+Cài docker và docker-compose trên EC2/AWS và Windows
+    sudo yum update -y
+    sudo yum install -y docker
+    sudo service docker start
+        service docker status -> Running
+        docker -v
+    (sudo usermod -a -G docker ec2-user)
+    - Cài docker-compose
+        sudo curl -L "https://github.com/docker/compose/rel...​ -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
