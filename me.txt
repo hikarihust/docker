@@ -170,4 +170,62 @@ Dockerfile
         docker rm $(docker ps -a -q)
     - Lệnh xóa toàn bộ image
         docker rmi -f $(docker images -a -q)
+Docker-compose
+    Các lệnh Docker-compose:
+        version: chỉ ra phiên bản docker-compose đã sử dụng.
+        services: thiết lập các services(containers) muốn cài đặt và chạy.
+        image: chỉ ra image được sử dụng trong lúc tạo ra container.
+        build: dùng để tạo container.
+        ports: thiết lập ports chạy tại máy host và trong container.
+        restart: tự động khởi chạy khi container bị tắt.
+        environment: thiết lập biến môi trường ( thường sử dụng trong lúc config các thông số của db).
+        depends_on: chỉ ra sự phụ thuộc. Tức là services nào phải được cài đặt và chạy trước thì service được config tại đó mới được chạy.
+        volumes: dùng để mount hai thư mục trên host và container với nhau.
+    1. Cài EC2
+        #!/bin/bash
+        yum update -y
+        yum install -y docker
+        service docker start
+        chkconfig docker on
+        curl -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+    2. Sample
+        Chuẩn bị: 
+            Folder code:
+                index.html
+                phpinfo.php
+        1. Tạo file Dockerfile
+            FROM centos:7
+            RUN yum -y update && \
+                yum -y install httpd php
+            WORKDIR /var/www/html
+            ADD ./code /var/www/html
+            EXPOSE 80
+        2.Tạo file docker-compose.yml
+            version: '3'
+            services:                                                                                       
+            web:                                                                                          
+                build: .
+                command: ["/usr/sbin/httpd","-D","FOREGROUND"]           
+                ports:                                                                                      
+                - "80:80"
+        - Build image
+            docker-compose build
+        - Chạy container
+            docker-compose up -d
+        Access Browser to check: 
+            http://3.138.186.116
+            http://3.138.186.116/phpinfo.php
+        - Stop
+            docker-compose stop
+        - Start lại container
+            docker-compose start
+        - Stop và xóa container
+            docker-compose down
+        - Lệnh stop toàn bộ container
+            docker stop $(docker ps -a -q)
+        - Lệnh xóa toàn bộ container
+            docker rm $(docker ps -a -q)
+        - Lệnh xóa toàn bộ image
+            docker rmi -f $(docker images -a -q)
     
