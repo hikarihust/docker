@@ -103,4 +103,71 @@ Triển khai tạo Image, Container&Docker Hub
             docker rm $(docker ps -a -q)
         - Lệnh xóa toàn bộ image
             docker rmi -f $(docker images -a -q)
+Dockerfile
+    Mục đích là build lên các Image bằng cách viết các câu lệnh trong Dockerfile
+    Các lệnh trong Dockerfile
+        FROM: Là base image để chúng ta tiến hành build một image mới. Command này phải được đặt trên cùng của Dockerfile
+        MAINTAINER: Command này là tùy chọn, có thể có hoặc không. Nó chưa thông tin của người tiến hành xây dựng lên images.
+        RUN: Sử dụng khi muốn thực thi một command trong quá trình build image
+        COPY: Copy một file từ host machine tới docker image. Có thể sử dụng URL cho tệp tin cần copy, khi đó docker sẽ tiến 
+            hành tải tệp tin đó đến thư mục đích.
+        ARG: Định nghĩa các biến cho quá trình build docker image. Biến này chỉ có scope khi build image, không sử dụng được 
+            khi docker container running.
+            Cách truyền khi chạy lệnh docker build:
+                --build-arg key1=value1
+                --build-arg key2=value2
+        ENV: Định nghĩa các biến môi trường. ENV có thể được gán bằng 2 cách:
+            Gán giá trị mặc định thông qua biến ARG khi build image
+            Gán trực tiếp hoặc override khi run container
+        WORKDIR: Định nghĩa directory cho CMD
+        USER: Đặt user hoặc UID cho container được tạo bởi image
+        VOLUME: Cho phép truy cập / liên kết thư mục giữa các container và máy chủ (host machine)
+        ENTRYPOINT: Định nghĩa những commands sẽ được chạy đầu tiên khi container chạy.
+            Các lệnh thêm vào sau docker run [OPTIONS] [Extra COMMANDs] sẽ được thêm vào chuỗi các commands của entrypoint
+        CMD: Định nghĩa các commands mặc định khi không có ENTRYPOINT và Extra COMMANDS
+        EXPOSE: Lệnh EXPOSE thông báo cho Docker cho container lắng nghe trên các cổng mạng được chỉ định khi chạy
+    Chuẩn bị: 
+        Folder code:
+            index.html
+            test.php
+    1. Tạo Dockerfile
+        # Get base image
+        FROM centos:7
+
+        # Author
+        MAINTAINER "Vu Quang"
+
+        #Cai​ dat apache
+        RUN yum update -y
+        RUN yum install -y sudo
+        RUN yum install -y epel-release
+        RUN yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+        RUN yum clean all
+        RUN yum -y install wget
+        RUN yum -y install httpd
+        RUN yum -y install --enablerepo=remi,remi-php71 php php-devel php-mbstring php-pdo php-gd php-xml php-mcrypt php-pgsql
+        
+        #Thiet​ lap thu muc lam viec 
+        WORKDIR /var/www/html
+
+        #copy​ code tu thu muc code vao image
+        ADD ./code /var/www/html
+
+        # start httpd
+        CMD ["/usr/sbin/httpd", "-D", "FOREGROUND"]
+
+        EXPOSE 80
+    2. Build image
+        docker build -t httpd_sample .
+    3. Tạo và chạy container
+        docker run -d -p 80:80 httpd_sample
+    Access Browser to check: 
+        http://3.138.186.116
+        http://3.138.186.116/test.php
+    - Lệnh stop toàn bộ container
+        docker stop $(docker ps -a -q)
+    - Lệnh xóa toàn bộ container
+        docker rm $(docker ps -a -q)
+    - Lệnh xóa toàn bộ image
+        docker rmi -f $(docker images -a -q)
     
