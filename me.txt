@@ -448,4 +448,83 @@ Docker Volume, Networks
         - Check by mysql Workbench
             user: admin, password: pass, port: 3306
         - Access Browser: http://3.141.103.242:8080/
-        
+Triển khai docker image lên AWS ECS(Amazon Elastic Container Service )
+    Mục đích để đưa các Docker image lên để chạy 
+    1. Tạo IAM user
+        Groups(name: docker)
+            AmazonEC2ContainerRegistryFullAccess
+            AmazonECS_FullAccess
+        Users
+            User name: docker-iam 
+            Access type: Programmatic access
+        Download: new_user_credentials.csv to use Access key ID and Secret access key
+    2. Cài EC2
+        #!/bin/bash
+        yum update -y
+        yum install -y docker
+        service docker start
+        chkconfig docker on
+        curl -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+    3. Cấu hình AWS CLI
+        command: aws configure
+            AWS Access Key ID [None]: *******
+            AWS Secret Access Key [None]: ********
+            Default region name [None]: us-east-2
+            Default output format [None]: json
+        check by command: aws configure list
+    4. Tạo docker image
+        AMAZON ECR
+        mkdir nginx
+        cd nginx
+        vi Dockerfile
+            FROM nginx
+            COPY html /usr/share/nginx/html
+        mkdir html
+        vi html/index.html
+            <html>
+            <head><title>Hello</title></head>
+            <body><h1>AWS ECS</h1></body>
+            </html>
+        docker build -t [Image Name]:tag .
+	        -> docker build -t docker_aws_ecs:v1 .
+        - Tạo repository lên AWS/ECR(Amazon Elastic Container Registry)
+            aws ecr create-repository --repository-name [Repository Name] --region us-east-2
+            -> aws ecr create-repository --repository-name docker_aws_ecs --region us-east-2
+            -> ECR -> Repositories to check repository created
+        - Tạo tag version docker image
+            docker tag [Image Name]:tag [Repository ULR] đã tạo ra ở bước trên]
+            -> docker tag docker_aws_ecs:v1 954822992399.dkr.ecr.us-east-2.amazonaws.com/docker_aws_ecs
+        - AWS ECR Login
+            aws ecr get-login --no-include-email --region us-east-2
+        - Push lên AWS/ECR
+            docker push [Repository ULR]
+            -> docker push 954822992399.dkr.ecr.us-east-2.amazonaws.com/docker_aws_ecs
+        - Tạo Task trên AWC/ECS
+            Task Definitions
+            Task Definition Name: docker
+            Network Mode: Bridge
+            Add container:
+                Container name: docker-container
+                Image: 954822992399.dkr.ecr.us-east-2.amazonaws.com/docker_aws_ecs
+                Memory Limits (MiB): 512
+                Port mappings: 80 - 80
+        - Tạo Clusters trên AWC/ECS
+            EC2 Linux + Networking
+            Cluster name: docker-cluster
+            EC2 instance type: t2.micro 
+            Number of instances: 3
+            Key pair: deploy
+        - Cluster - Services - Create
+            Launch type: EC2
+            Service name: docker-service
+            Service type: DAEMON
+            Clusters  -> ECS Instances -> Public IPv4 address
+        - Chạy và kiểm tra thành quả
+            Access Browser to test: http://3.139.70.243/
+            AWS ECS is displayed
+    Các lệnh xóa đồng loạt
+        docker stop $(docker ps -a -q)
+        docker rm $(docker ps -a -q)
+        docker rmi -f $(docker images -a -q)
+    
