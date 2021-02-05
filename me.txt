@@ -599,4 +599,47 @@ Running PHP Scripts with Volume Mounting in Docker Containers - Practical Exampl
         Will directory run index.php and output the “test text” and exit again
         No need to actually enter the container(/bin/bash will enter the container)
         -w flag again sets the working directory to /myfiles
+How to access Server Logs in Docker and How to do Port Forwarding in Docker
+    docker run -d httpd
+        Will start an apache in detached mode (-d)
+        It should open a webserver on port 80
+    docker exec -it container_identifier /bin/bash
+        -> docker exec -it 369235e9603a /bin/bash
+    apt-get update 
+    apt-get install curl
+    curl localhost:80
+    exit 
+    docker logs container_identifier
+        -> docker logs 369235e9603a
+        Do not have see the request from inside the container
+    docker logs container_identifier -f
+        -> docker logs 369235e9603a -f
+            Will follow the log output until you hit ctrl+c
+            http://18.224.137.19/ doesn’t do anything
+    docker inspect container_identifier
+        -> docker inspect 369235e9603a
+        Will print out the container information
+        You see there are no ports bound to the host
+            "PortBindings": {},
+    docker rm -f 369235e9603a
+        docker run -d -p 8080:80 httpd
+            -p 8080:80 forwards HOST:GUEST
+            On the host machine port 8080 is now mapped to port 80 in the guest machine
+    Open http://18.224.137.19:8080    
+        Should bring up now “it works”
+    docker inspect 4ff6f3c83290
+        Now shows the forwarded port
+            "PortBindings": {
+                "80/tcp": [
+                    {
+                        "HostIp": "",
+                        "HostPort": "8080"
+                    }
+                ]
+            }
+    docker rm -f 4ff6f3c83290
+    docker run -d -p 8080:80 -v ${PWD}:/var/www/html php:7.2-apache
+    docker exec -it 5928b213a9a8 /bin/bash
+    chmod 755 /var/www/html/
+    Open http://18.224.137.19:8080/
     
