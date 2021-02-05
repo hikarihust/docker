@@ -573,4 +573,16 @@ Running multiple Docker Containers, detaching and docker attach step by step
             the container later on.
     docker run -it -d --rm --name linux2 ubuntu /bin/bash
         Tài nguyên của linux1 và linux2 là khác nhau và không được chia sẻ mặc dù chúng đề được tạo ra từ image ubuntu
+Running Docker Containers with a Shared Host File System (Volume Mounting)
+    docker run --rm -v ${PWD}:/myvol ubuntu /bin/bash -c "ls -lha > /myvol/myfile.txt"
+        This command runs “ls -lha” and pipes the output to /myvol/myfile.txt
+        /myvol is “mounted” to the current working directory on the host
+        On the host you can observe a new file called “myfile.txt” with the output of “ls -lha
+        The container is then ended and removed because of “--rm"
+    docker run -it -v ${PWD}:/myvol ubuntu /bin/bash
+    In Container:
+        touch file2 
+        echo "test" > file2
+        exit 
+    Check file2 in host EC2 
     
