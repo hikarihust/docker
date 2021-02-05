@@ -585,4 +585,18 @@ Running Docker Containers with a Shared Host File System (Volume Mounting)
         echo "test" > file2
         exit 
     Check file2 in host EC2 
+Running PHP Scripts with Volume Mounting in Docker Containers - Practical Example
+    docker run -it --rm -v ${PWD}:/myfiles --name my-running-script php:7.0-cli /bin/bash
+        Running the php 7.0, not the php 7.2 cli
+        And we are mounting the root directory into the /myfiles directory inside the container
+    In Container
+        echo '<? echo "test text\n";' > /myfiles/index.php
+    exit 
+    docker run -it --rm -v ${PWD}:/myfiles --name my-running-script php:7.2-cli /bin/bash
+    In Container 
+        php /myfiles/index.php
+    docker run -it --rm -v ${PWD}:/myfiles -w /myfiles --name myrunning-script php:7.2-cli php index.php
+        Will directory run index.php and output the “test text” and exit again
+        No need to actually enter the container(/bin/bash will enter the container)
+        -w flag again sets the working directory to /myfiles
     
