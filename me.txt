@@ -562,4 +562,15 @@ Running a single Docker Container Explained Step By Step
         stop the running container
     docker rm container_identifier
         Clean up: Remove the container
+Running multiple Docker Containers, detaching and docker attach step by step
+    docker run -it -d --rm --name linux1 ubuntu /bin/bash
+        -d starts the container as “detached”. Use “docker attach” to attach to it later on.
+        --rm cleans up the container after stopping. The container will be removed, basically
+            the same as “docker rm container_identifier” after stopping the container. So
+            everything is kept tidy
+            Cũng bị xóa sau lệnh exit sau khi đã attach vào Container
+        --name will give the container a dedicated name, which makes it easier to address
+            the container later on.
+    docker run -it -d --rm --name linux2 ubuntu /bin/bash
+        Tài nguyên của linux1 và linux2 là khác nhau và không được chia sẻ mặc dù chúng đề được tạo ra từ image ubuntu
     
