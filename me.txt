@@ -527,4 +527,39 @@ Triển khai docker image lên AWS ECS(Amazon Elastic Container Service )
         docker stop $(docker ps -a -q)
         docker rm $(docker ps -a -q)
         docker rmi -f $(docker images -a -q)
+
+==============================================================================================================
+==============================================================================================================
+
+                    Understanding Docker Run with Volume mounting and important flags step by step
+Cài EC2
+    #!/bin/bash
+    yum update -y
+    yum install -y docker
+    service docker start
+    chkconfig docker on
+    curl -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+Các lệnh xóa đồng loạt
+    docker stop $(docker ps -a -q)
+    docker rm $(docker ps -a -q)
+    docker rmi -f $(docker images -a -q)
+Running a single Docker Container Explained Step By Step
+    docker run -it ubuntu /bin/bash
+        it: interactive and terminal(Chạy và đồng thời vào Container)
+        - Ctrl+p+q: Container vẫn còn được chạy đồng thời quay về Terminal của EC2
+        - Exit: Container ngừng
+    docker ps
+        lists the currently running container
+    docker ps -a
+        Lists all containers, the running ones and the empty ones
+    docker start container_identifier
+        We can restart a container that was previously running
+    docker attach container_identifier
+        We can re-attach to the container
+        Re attach lại container đã được chạy và dùng Ctrl+p+q để quay về Terminal của EC2
+    docker stop container_identifier
+        stop the running container
+    docker rm container_identifier
+        Clean up: Remove the container
     
