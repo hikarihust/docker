@@ -228,4 +228,224 @@ Docker-compose
             docker rm $(docker ps -a -q)
         - Lệnh xóa toàn bộ image
             docker rmi -f $(docker images -a -q)
-    
+Docker Volume, Networks
+    1. Docker volume
+        Là một nơi lưu trữ data nằm ngoài container, mục đích không làm mất data khi xóa container
+        Sử dụng Volume khi nào 
+            - Khi chia sẻ dữ liệu giữa nhiều container đang chạy.
+            - Lưu dữ liệu tới một server remote hoặc cloud.
+            - Khi cần backup, restore hoặc migrate dữ liệu từ Docker Host này sang Docker Host khác.
+        Lệnh liên quan tới volume
+            docker volume create        Tạo volume mới
+            docker volume inspect       Xem chi tiết volume
+            docker volume ls             Hiển thị những volume đang có
+            docker volume rm             Xóa volume
+            docker volume prune         Xóa toàn bộ volume
+    Docker volume Example
+        1. Cài EC2
+            #!/bin/bash
+            yum update -y
+            yum install -y docker
+            service docker start
+            chkconfig docker on
+            curl -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+        Ví dụ Volume 1
+            docker volume create project01_code
+            docker volume inspect project01_code
+            docker run --name project01 -p 8080:80 -v project01_code:/usr/local/apache2/htdocs -d httpd
+        Ví dụ Volume 2
+            EC2 Instances -> Security -> Security groups
+                MYSQL/Aurora	TCP	3306	0.0.0.0/0
+            (docker container run --name mysql -e MYSQL_ROOT_PASSWORD=pass -p 3306:3306 -d mysql:5.7)
+            docker volume create pj01_data
+            docker container run --name mysql -v pj01_data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=pass -p 3306:3306 -d mysql:5.7
+            connect by mysql
+                Hostname: 18.222.158.139
+                Port: 3306
+                Username: root 
+                Password: pass 
+            Create database: test_docker 
+            Create table: hocsinh(id, name)
+            Insert data:
+                1, A
+                2, B
+                3, C
+                4, D
+            - Stop toàn bộ container
+                docker stop $(docker ps -a -q)
+            - Xóa toàn bộ container
+                docker rm $(docker ps -a -q)
+            - Xóa toàn bộ image
+                docker rmi -f $(docker images -a -q)
+            Build lại Container: 
+                docker container run --name mysql -v pj01_data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=pass -p 3306:3306 -d mysql:5.7
+            Connect by mysql and test
+                SELECT * FROM test_doker.hocsinh;
+    2. Docker networks
+        Để kết nối các container trong cùng mạng hoặc khác mạng với nhau.
+        Các câu lệnh thao tác với Docker networks
+            docker network create        Tạo mạng mới
+            docker network inspect       Xem chi tiết mạng
+            docker network ls             Hiển thị những mạng đang có
+            docker network rm            Xóa mạng
+            docker network prune         Xóa đồng loạt các mạng không sử dụng
+            docker network connect       Tạo kết nối mạng
+            docker network disconnect    Ngắt kết nối mạng
+        Ví dụ 1
+            Tạo 1 mạng lớp C
+                docker network create --subnet 192.168.1.0/24 network1
+            Tạo ra 2 container kết nối với mạng này
+                docker run -itd --name=container1  --network network1 busybox
+                docker run -itd --name=container2  --network network1 busybox
+            docker network inspect network1
+                container1: 192.168.1.2/24
+                container2: 192.168.1.3/24
+            Kiểm tra kết nối giữa 2 mạng
+                docker attach container1
+                ping 192.168.1.3
+        Ví dụ 2
+            docker run --name mysql --network network1 -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:5.7
+            docker run --name wordpress --network network1 -e WORDPRESS_DB_PASSWORD=my-secret-pw -p 8080:80 -d wordpress
+            Access Browser http://3.141.103.242:8080/ to check Wordpress(username: admin, password: 123456)
+    Sample 1 tạo DB MYSQL
+        - Stop toàn bộ container
+            docker stop $(docker ps -a -q)
+        - Xóa toàn bộ container
+            docker rm $(docker ps -a -q)
+        - Xóa toàn bộ image
+            docker rmi -f $(docker images -a -q)
+        sample-project/
+                    ├ docker/
+                    |       └ mysql/
+                    |              ├ conf.d/
+                    |              |       └ my.cnf
+                    |              ├ initdb.d/
+                    |              |         ├ schema.sql
+                    |              |         └ testdata.sql
+                    |              └ Dockerfile
+                    ├ log/mysql
+                    |
+                    └ docker-compose.yml    
+        mkdir pj03
+        cd pj03
+        mkdir -p docker/mysql/conf.d
+        mkdir -p docker/mysql/initdb.d
+        mkdir -p log/mysql
+        chmod -Rf 777 log
+        vi docker/mysql/conf.d/my.cnf
+            [mysqld]
+            character-set-server=utf8mb4
+            explicit-defaults-for-timestamp=1
+            general-log=1
+            general-log-file=/var/log/mysql/mysqld.log
+
+            [client]
+            default-character-set=utf8mb4
+        vi docker/mysql/initdb.d/schema.sql
+            CREATE TABLE users (
+                id INT NOT NULL AUTO_INCREMENT,
+                name VARCHAR(32) NOT NULL,
+                email VARCHAR(32) NOT NULL,
+                PRIMARY KEY (id)
+            );
+        vi docker/mysql/initdb.d/testdata.sql
+            INSERT INTO users (id,name,email) VALUES (1, 'Tuc Anh Ach','achsan@gamil.com');
+        vi docker/mysql/Dockerfile
+            FROM mysql:5.7
+            RUN touch /var/log/mysql/mysqld.log
+        vi docker-compose.yml
+            version: '3'
+            services:
+                db:
+                    build: ./docker/mysql
+                    image: mysql:5.7
+                    restart: always
+                    environment:
+                        MYSQL_DATABASE: sample_db
+                        MYSQL_USER: user
+                        MYSQL_PASSWORD: password
+                        MYSQL_ROOT_PASSWORD: rootpassword
+                    ports:
+                        - "3314:3306"
+                    volumes:
+                        - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d
+                        - ./docker/mysql/conf.d:/etc/mysql/conf.d
+                        - ./log/mysql:/var/log/mysql
+                        - mysql_data:/var/lib/mysql
+            volumes:
+                mysql_data:
+        - Build container
+            docker-compose up -d 
+        - EC2 -> Security Groups
+            Custom TCP	TCP	3314	0.0.0.0/0
+        - Check by mysql Workbench
+            user: user, password: password, port: 3314
+            INSERT INTO `sample_db`.`users` (`id`, `name`, `email`) VALUES ('2', 'Vu Quang', 'quang@gmail.com');
+        - Stop toàn bộ container
+            docker stop $(docker ps -a -q)
+        - Xóa toàn bộ container
+            docker rm $(docker ps -a -q)
+        - Xóa toàn bộ image
+            docker rmi -f $(docker images -a -q)
+        - Build container
+            docker-compose up -d 
+        - Check by mysql Workbench again
+    Sample 2
+        - Stop toàn bộ container
+            docker stop $(docker ps -a -q)
+        - Xóa toàn bộ container
+            docker rm $(docker ps -a -q)
+        - Xóa toàn bộ image
+            docker rmi -f $(docker images -a -q)
+        mkdir pj05
+        cd pj05 
+        docker-compose.yml
+            version: "3"
+            services:
+            wordpress:
+                image: wordpress:latest
+                container_name: pj10_wordpress
+                volumes:
+                - "$PWD:/var/www/html"
+                - "$PWD/docker/backup:/tmp/backup"
+                - "$PWD/docker/log:/tmp/log"
+                ports:
+                - 8080:80
+                depends_on:
+                - db
+                environment:
+                WORDPRESS_DB_HOST: "db:3306"
+                networks:
+                - pj10_network
+                env_file: .env
+
+            db:
+                image: mysql:5.7
+                container_name: pj10_mysql
+                volumes:
+                - "db-data:/var/lib/mysql"
+                networks:
+                - pj10_network
+                env_file: .env
+
+            volumes:
+            db-data:
+
+            networks:
+            pj10_network:
+        File .env
+            WORDPRESS_DB_NAME=wordpress
+            WORDPRESS_DB_USER=admin
+            WORDPRESS_DB_PASSWORD=pass
+
+            MYSQL_RANDOM_ROOT_PASSWORD=yes
+            MYSQL_DATABASE=wordpress
+            MYSQL_USER=admin
+            MYSQL_PASSWORD=pass
+        - Build container
+            docker-compose up -d 
+        - Check by mysql Workbench
+            user: admin, password: pass, port: 3306
+        - Access Browser: http://3.141.103.242:8080/
+        
