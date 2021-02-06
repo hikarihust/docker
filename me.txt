@@ -684,4 +684,17 @@ Use a custom PHP Development Server inside a Container based on a Dockerfile
     ctrl+c
         Stop the container
         The container is still running in the background.
+Ship your Web-Application using Apache/PHP as Docker Image with a Dockerfile
+    Dockerfile:
+        FROM php:7.2-apache
+        COPY index.php /var/www/html
+    index.php:
+    docker build -t myphpapp .
+        This will build an image myphpapp:latest
+        Will copy the index.php from the host inside the container in the directory /var/www/html
+    docker run --name myphp-apache -p 8080:80 myphpapp
+        Will run the image myphpapp image
+        Bind port 8080 on the host to port 80 on the guest
+        Will give the container the name “myphp-apache”
+    Open http://18.224.137.19:8080/ to check
     
