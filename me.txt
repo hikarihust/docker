@@ -806,4 +806,63 @@ Build your own Images with Custom Configuration using Docker-Compose
         The image name is “phpapp:123” and not the directory_name… anymore.
         It will run this as a container named "my-php-app" not the “folder-name”_”service_name”_”index” anymore
     Open http://3.135.61.64:8080/ to check -> “hello docker” displayed
+A Sample Development Environment (PHP/Apache/MySQL) using docker-compose.yml
+    docker-compose.yml
+        version: '3'
+        services:
+        phpapp:
+            build:
+                context: ./
+                dockerfile: Dockerfile
+            image: phpapp:123
+            ports:
+                - "8080:80"
+            volumes:
+                - "./:/var/www/html"
+            container_name: myphpapp-app
+
+        db:
+            image: mysql:5.7
+            #restart: always
+            ports:
+                - "3306:3306"
+            environment:
+                MYSQL_ROOT_PASSWORD: root
+                MYSQL_DATABASE: wp2017
+                MYSQL_USER: wp
+                MYSQL_PASSWORD: wp2017
+                container_name: myphpapp-db
+    Dockerfile
+        FROM php:7.2-apache
+        RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+    index.php 
+        <?php
+        header("content-type: text");
+        $serverName = 'db'; //The hostname "db" from our docker-compose.yml file!!!
+        $userName = 'wp';
+        $password = 'wp2017';
+        $dbName = 'wp2017';
+        $conn = new mysqli($serverName, $userName, $password, $dbName);
+        if ($conn->connect_errno > 0) {
+            echo $db->connect_error;
+        } else {
+            echo "DB Connection successful\n\n";
+            //we read out the content
+            $result=mysqli_query($conn,"SHOW DATABASES;");
+            while( $row = mysqli_fetch_row( $result ) ){
+                echo $row[0]."\n";
+            } 
+        }
+    docker-compose up -d
+        Downloads the image "mysql:5.7" and starts it
+
+    Open http://3.135.61.64:8080/ and see if you can see a “DB Connection successful”
+    docker logs myphpapp-app -f
+        This attaches to the stdout logs of the myphpapp-app container
+        Every time you reload the website you should see a new request
+    docker-compose ps
+        Lists the Services running
+    docker-compose down
+        Shuts down the two services
+        And removes them
     
