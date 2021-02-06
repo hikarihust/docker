@@ -538,12 +538,13 @@ Cài EC2
     yum install -y docker
     service docker start
     chkconfig docker on
-    curl -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     chmod +x /usr/local/bin/docker-compose
 Các lệnh xóa đồng loạt
     docker stop $(docker ps -a -q)
     docker rm $(docker ps -a -q)
     docker rmi -f $(docker images -a -q)
+    docker volume rm $(docker volume ls -q)
 Running a single Docker Container Explained Step By Step
     docker run -it ubuntu /bin/bash
         it: interactive and terminal(Chạy và đồng thời vào Container)
@@ -909,4 +910,55 @@ Understanding Data Persistence in Host-Volume Mounted Directories Step by Step
     USE somedatabase;
     SHOW TABLES;
         Observe the database is now persistent
+Understanding Data Persistence in Named-Volumes and Data-Sharing in Containers
+    Có thể dùng named volumes để bảo lưu dữ liệu và share dữ liệu giữa các container
+    docker volume create --name my-vol
+        Create a volume called "my-vol"
+    docker volume ls
+        List all volumes
+        Observe “my-vol” is present
+    docker-compose.yml
+        version: '3'
+        services:
+        db:
+            image: mysql:latest
+            restart: always
+            container_name: myphpapp-db
+            environment:
+            MYSQL_ROOT_PASSWORD: somepass
+            MYSQL_DATABASE: somedatabase
+            volumes:
+            - my-vol:/var/lib/mysql
+            ports:
+            - "3306:3306"
+        volumes:
+        my-vol:
+            name: my-vol
+    docker-compose up -d
+        This will bring up the db-container
+        It will write into the volume “my-vol” all the database data
+    docker run -v my-vol:/mydata --rm -it ubuntu /bin/bash
+        Will start a new container with ubuntu
+        Will mount my-vol into /mydata in the container
+    ls /mydata
+        Should show the database data files
+        This way it’s easy to move volumes around
+    exit 
+        Exit the container
+    docker-compose down
+    docker volume rm my-vol
+    But how about sharing data between two containers? Let’s try:
+        docker volume create --name Datastore1
+        docker run -v Datastore1:/mydatastore --rm -it ubuntu /bin/bash
+        echo "hello datastore1" > /mydatastore/hello.txt
+    Open a second terminal!
+        Cmd2: docker run -v Datastore1:/mydatastore1 --rm -it ubuntu /bin/bash
+        Cmd2: cat /mydatastore1/hello.txt
+            Should output "hello datastore1"
+        Cmd2: echo "hello datastore 2" >> /mydatastore1/hello.txt
+    Move to the other command line:
+        Cmd1: cat /mydatastore/hello.txt
+        Should now contain both strings:
+            hello datastore1 
+            hello datastore 2
     
