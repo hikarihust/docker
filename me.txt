@@ -697,4 +697,24 @@ Ship your Web-Application using Apache/PHP as Docker Image with a Dockerfile
         Bind port 8080 on the host to port 80 on the guest
         Will give the container the name “myphp-apache”
     Open http://18.224.137.19:8080/ to check
+Upload Custom Images to Docker-Hub Image Repository
+    Dockerfile:
+        FROM alpine
+        RUN apk update && apk add curl
+        ENTRYPOINT [ "curl" ]
+    Run
+    docker build -t mycurl .
+    docker run --rm mycurl www.google.com
+        Should output the HTML from the google website
+    docker login
+    docker tag mycurl vudinhquang/mycurl:latest
+        Tag your image with “username/repository:tag” -> vudinhquang/mycurl:latest
+    docker image ls
+        Lists also the new image as well, with the same images ID
+    docker push vudinhquang/mycurl:latest
+        Pushes the image to docker hub
+    docker rmi mycurl
+    docker rmi vudinhquang/mycurl:latest
+    docker run --rm vudinhquang/mycurl:latest www.google.com
+        It will download the image again from docker hub from your public repository
     
