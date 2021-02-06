@@ -717,4 +717,43 @@ Upload Custom Images to Docker-Hub Image Repository
     docker rmi vudinhquang/mycurl:latest
     docker run --rm vudinhquang/mycurl:latest www.google.com
         It will download the image again from docker hub from your public repository
+
+            ----------------------------------------------------------------------------------------
+                    Reading, Understanding and Writing docker-compose.yml files step by step
+
+The docker-compose.yml File Explained Line-by-Line
+    Dockerfile
+        FROM php:7.2-apache
+        COPY index.php /var/www/html
+    index.php
+        echo "hello world \n\n";
+    docker-compose.yml
+        version: '3'
+        services:
+        phpapp:
+            ports:
+            - "8080:80"
+            build:
+            context: ./
+            dockerfile: Dockerfile
+    Run 
+        docker-compose up
+            It will read the docker-compose.yml file in the current directory
+            It will build a new image “folder-name”_”service-name” based on the Dockerfile
+                called "dockercompose_phpapp"
+            It will run this as a container named “folder-name”_”service_name”_”index”
+                So: "dockercompose_phpapp_1"
+        Open http://3.16.206.112:8080/ to check
+        ctrl-c
+            Stop the running container(s)
+        Edit index.php: "hello world" to "hello docker"
+            echo "hello docker \n\n";
+        docker-compose up
+            Start the container(s) again
+        Open http://3.16.206.112:8080/ should still bring up “hello world”.
+        docker-compose up --build
+            This rebuilds the image before spinning it up
+            Now http://3.16.206.112:8080/ container "hello docker"
+        docker-compose rm
+            Cleanup, remove the containers
     
