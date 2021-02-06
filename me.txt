@@ -642,4 +642,28 @@ How to access Server Logs in Docker and How to do Port Forwarding in Docker
     docker exec -it 5928b213a9a8 /bin/bash
     chmod 755 /var/www/html/
     Open http://18.224.137.19:8080/
+
+            ----------------------------------------------------------------------------------------
+                    Creating Docker Images and a Custom Configuration with Dockerfile in Docker
+
+Write your first Dockerfile Step-By-Step Explained for Beginners
+    Create this Dockerfile:
+        FROM php:7.2-cli
+        RUN mkdir /myproject
+        COPY index.php /myproject
+        WORKDIR /myproject
+        CMD php index.php
+    index.php
+        echo "Hello World\n\n";
+    docker build -t myphpapp .
+        “build” builds a new image
+        -t is a tagging. In this case “myphpapp”, you can later find it.
+        “.” is telling where the Dockerfile is located at 
+    docker run myphpapp
+    docker image ls
+    docker ps -a
+    docker rm container_identifier
+        Remove the container from the myphpapp
+    docker rmi myphpapp
+        rmi will delete an image
     
