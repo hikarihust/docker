@@ -778,4 +778,32 @@ This is how you use Docker-Compose to Start and Stop Services
     ctrl-c
     docker-compose rm
         Remove the unnecessary containers
+Build your own Images with Custom Configuration using Docker-Compose
+    docker-compose.yml
+        version: '3'
+        services:
+            phpapp:
+                build:
+                    context: ./
+                    dockerfile: Dockerfile
+                image: phpapp:123
+                ports:
+                    - "8080:80"
+                volumes:
+                    - "./:/var/www/html"
+                container_name: my-php-app
+    Dockerfile
+        FROM php:7.2-apache
+        RUN apt-get -y update \
+        && apt-get install -y libicu-dev \
+        && docker-php-ext-configure intl \
+        && docker-php-ext-install intl
+        RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+    index.php 
+        <?php
+        phpinfo();
+    docker-compose up
+        The image name is “phpapp:123” and not the directory_name… anymore.
+        It will run this as a container named "my-php-app" not the “folder-name”_”service_name”_”index” anymore
+    Open http://3.135.61.64:8080/ to check -> “hello docker” displayed
     
