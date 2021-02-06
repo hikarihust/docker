@@ -666,4 +666,22 @@ Write your first Dockerfile Step-By-Step Explained for Beginners
         Remove the container from the myphpapp
     docker rmi myphpapp
         rmi will delete an image
+Use a custom PHP Development Server inside a Container based on a Dockerfile
+    Dockerfile:
+        FROM php:7.2-cli
+        EXPOSE 8000
+        RUN mkdir /myproject
+        COPY index.php /myproject
+        WORKDIR /myproject
+        CMD ["php", "-S", "0.0.0.0:8000"]
+    docker build -t myphpapp .
+        Will run “php -S 0.0.0.0:8000” and serve the content of /myproject on port 8000
+        CMD will take an array and run a command. Every parameter must be in a separate array
+            element, so: CMD [“command”,”param1”, “param2”, …]
+    docker run --name myphp-container -p 8080:8000 myphpapp
+        Will forward port 8000 in the container to port 8080 on the host
+    Open http://18.224.137.19:8080/ to check
+    ctrl+c
+        Stop the container
+        The container is still running in the background.
     
