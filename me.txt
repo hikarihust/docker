@@ -865,4 +865,48 @@ A Sample Development Environment (PHP/Apache/MySQL) using docker-compose.yml
     docker-compose down
         Shuts down the two services
         And removes them
+Understanding Data Persistence in Host-Volume Mounted Directories Step by Step
+    mkdir data
+    docker-compose.yml
+        version: '3'
+        services:
+        db:
+            image: mysql:latest
+            restart: always
+            container_name: myphpapp-db
+            environment:
+            MYSQL_ROOT_PASSWORD: somepass
+            MYSQL_DATABASE: somedatabase
+            volumes:
+            - ./data:/var/lib/mysql
+            ports:
+            - "3306:3306"
+        dbclient:
+            image: mysql:latest
+            container_name: myphpapp-dbclient
+            depends_on:
+            - db
+            command: mysql -uroot -psomepass -hdb
+    docker-compose up -d
+        starts both containers in detached mode
+    docker-compose ps
+        will show the “db” running, while the other one(dbclient) stopped
+    docker-compose run --rm dbclient
+        should connect to the “db” and open a mariadb shell
+    USE somedatabase;
+    SHOW TABLES;
+        Observe that it’s empty!
+    CREATE TABLE mytable (id INT);
+    SHOW TABLES;
+        Now you have one table in your database, which we created.
+    exit;
+    docker-compose stop
+    docker-compose rm
+        removes all (not running) containers from docker-compose
+    docker-compose up -d
+        Re-Run the containers based on the images
+    docker-compose run --rm dbclient
+    USE somedatabase;
+    SHOW TABLES;
+        Observe the database is now persistent
     
