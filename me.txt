@@ -756,4 +756,26 @@ The docker-compose.yml File Explained Line-by-Line
             Now http://3.16.206.112:8080/ container "hello docker"
         docker-compose rm
             Cleanup, remove the containers
+This is how you use Docker-Compose to Start and Stop Services
+    docker-compose.yml
+        version: '3'
+        services:
+            phpapp:
+                image: php:7.2-apache
+                ports:
+                    - "8080:80"
+                volumes:
+                    - "./:/var/www/html"
+    index.php
+        echo "hello world \n\n";
+    Run 
+        docker-compose up
+        It will mount the current directory to /var/www/html dynamically
+        Open http://3.16.206.112:8080/ to check
+    Let’s change “hello world” in the index.php to “hello docker” and save it.
+    Then reload your browser
+    Open http://3.16.206.112:8080/ to check -> “hello docker” displayed
+    ctrl-c
+    docker-compose rm
+        Remove the unnecessary containers
     
