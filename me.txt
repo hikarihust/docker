@@ -1029,4 +1029,52 @@ Creating a Specific Network in the docker-compose.yml file
     docker inspect app1
         Observe the networking part!
     docker-compose rm
+Using and Defining Networks in docker-compose.yml file for Network Segregation
+    docker-compose.yml
+        version: "3.7"
+        services:
+        web:
+            image: nginx:alpine
+            volumes:
+            - ./nginx.conf:/etc/nginx/nginx.conf
+            ports:
+            - 8080:80
+            networks:
+            - app1_net
+            - app2_net
+        app1:
+            image: httpd:latest
+            networks:
+            - app1_net
+        app2:
+            image: httpd:latest
+            networks:
+            - app2_net
+        networks:
+            app1_net:
+            app2_net:
+    nginx.conf 
+        events {}
+        http {
+            server {
+                listen 80;
+                listen [::]:80;
+                server_name example.com;
+                location / {
+                    proxy_pass http://app1:80/;
+                }
+                location /app2 {
+                    proxy_pass http://app2:80/;
+                }
+            }
+        }
+    docker-compose up
+    Open http://3.129.208.175:8080/
+        It will show you the nignx-container web_1 container (reverse_proxy) was requested
+        And forwarded the request to “app1_1” container
+        Reload a few times to make this more obvious
+    Open http://3.129.208.175:8080/app2 
+        It will show you again that nginx-container web_1 container (reverse_proxy) was requested
+        And now forwards to “app2_1” container
+        Reload a few times to make this more obvious
     
