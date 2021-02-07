@@ -1011,4 +1011,22 @@ Understanding Network Segregation in Docker and the Docker network
         “It Works!”
     docker stop my-webserver
     docker network rm simple-network
+Creating a Specific Network in the docker-compose.yml file
+    docker-compose.yml
+        version: "3.7"
+        services:
+        app1:
+            image: httpd:latest
+            container_name: app1
+            ports:
+            - 8080:80
+            networks:
+            - app1_net
+        networks:
+        app1_net:
+    docker-compose up
+    Open http://3.129.208.175:8080/ to check
+    docker inspect app1
+        Observe the networking part!
+    docker-compose rm
     
