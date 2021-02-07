@@ -545,6 +545,7 @@ Các lệnh xóa đồng loạt
     docker rm $(docker ps -a -q)
     docker rmi -f $(docker images -a -q)
     docker volume rm $(docker volume ls -q)
+    docker network prune -f
 Running a single Docker Container Explained Step By Step
     docker run -it ubuntu /bin/bash
         it: interactive and terminal(Chạy và đồng thời vào Container)
@@ -961,4 +962,53 @@ Understanding Data Persistence in Named-Volumes and Data-Sharing in Containers
         Should now contain both strings:
             hello datastore1 
             hello datastore 2
+
+            ----------------------------------------------------------------------------------------
+                    Understanding Network Segregation using Bridge Networks in Docker-Compose
+
+Understanding Network Segregation in Docker and the Docker network
+    docker network ls
+        Brings up a list of all networks
+    docker network prune
+        Should delete all networks
+    docker network ls
+        Should now just list the necessary networks for docker to function: A bridge, A host, A null
+    docker run --rm --name my-webserver -d httpd
+        Start an apache webserver (httpd container)
+    docker inspect my-webserver
+        Check the IP address of the container
+        Networks -> "IPAddress": "172.17.0.2"
+    Open http://172.17.0.2 (or the IP address of your container)
+        It won’t let you connect to it
+        Unless you forward a port to your host with -p 8080:80 or so…
+    docker run --rm vudinhquang/mycurl my-webserver
+        Should download and run an image called “vudinhquang/curl” which is just an ubuntu alpine with curl installed
+        And curl “my-webserver"
+            Basically, the same as executing “curl my-webserver” on any Linux
+        It will end in an error
+    docker run --rm vudinhquang/mycurl 172.17.0.2
+        Will output you the HTML of the Webserver
+        “It Works!”
+    docker stop my-webserver
+        Stops the webserver container
+    docker network create simple-network
+        Creates a new bridge network called “simple-network”
+    docker run --rm -d --name my-webserver --network simple-network httpd
+        Start the webserver again attaching it to the “simple-network” we created earlier
+    docker run --rm --network simple-network vudinhquang/mycurl my-webserver
+        Now the name binding works
+        “It Works!”
+    docker inspect my-webserver
+        Get the IP Address of your webserver
+        It should be 172.19.0.2 (or so – copy the IP of your container here)
+    docker run --rm vudinhquang/mycurl 172.19.0.2
+        Run curl without the network, on the docker0 network
+        You won’t be able to connect to the webserver
+        It’s segregated from the other network
+        Ctrl-c to stop
+    docker run --rm --network simple-network vudinhquang/mycurl 172.19.0.2
+        Now the name binding works
+        “It Works!”
+    docker stop my-webserver
+    docker network rm simple-network
     
