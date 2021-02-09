@@ -1183,4 +1183,8 @@ Dockerize the Local Laravel Environment using Docker-compose
     docker-compose exec app php artisan key:generate
     docker-compose exec app php artisan config:cache
     Open http://3.134.247.186/ to check 
+Add in a Database and Redis into the local Docker-Compose environment
+    docker-compose exec app php artisan migrate
+    docker-compose stop
+    docker-compose up --build -d
     
