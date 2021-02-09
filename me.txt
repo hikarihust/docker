@@ -1137,4 +1137,50 @@ Understanding and Improving the Wordpress docker-compose.yml file
     and Workbench check data again
         -> Data vẫn còn, ko bị mất 
     Check data of "wp-content" Folder of host EC2
+
+            ----------------------------------------------------------------------------------------
+                    Practical Example of a docker-compose.yml Envrionment in Laravel
+
+Install Laravel with composer from php via Docker
+    Add a User and Grant Root Privileges on CentOS 7
+    https://www.liquidweb.com/kb/how-to-add-a-user-and-grant-root-privileges-on-centos-7/
+    https://www.digitalocean.com/community/tutorials/how-to-set-up-laravel-nginx-and-mysql-with-docker-compose
+    Add the User(Tạo user mới và thiết lập mật khẩu cho user)
+        adduser www
+        passwd www 
+    Grant Root Privileges to the User
+        visudo
+        www ALL=(ALL) ALL
+    su - www(swith to www user)
+    Downloading Laravel and Installing
+        git clone https://github.com/laravel-shift/laravel-7.x.git laravel-app
+    cd ~/laravel-app
+    sudo docker run --rm -v $(pwd):/app composer install
+    sudo chown -R $USER:$USER ~/laravel-app
+Dockerize the Local Laravel Environment using Docker-compose
+    Creating the Docker Compose File
+        laravel-app/docker-compose.yml
+    Creating the Dockerfile
+        laravel-app/Dockerfile
+    Configuring PHP
+        laravel-app/php/local.ini
+    Configuring Nginx
+        laravel-app/nginx/conf.d/app.conf
+    Configuring MySQL
+        laravel-app/mysql/my.cnf
+    Modifying Environment Settings and Running the Containers
+        cp .env.example .env
+    docker-compose up -d
+    docker ps
+    Switch to root user
+        sudo su -
+    cd /home/www/laravel-app/
+    docker-compose up -d
+    docker-compose exec app php artisan key:generate
+    chmod -R 777 storage
+    chmod 777 .env
+    chmod -R 777 bootstrap
+    docker-compose exec app php artisan key:generate
+    docker-compose exec app php artisan config:cache
+    Open http://3.134.247.186/ to check 
     
