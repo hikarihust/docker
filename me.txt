@@ -171,6 +171,11 @@ Dockerfile
     - Lệnh xóa toàn bộ image
         docker rmi -f $(docker images -a -q)
 Docker-compose
+    Dùng để chạy multi container đồng thời
+    Viết theo cú pháp của ngôn ngữ yaml 
+        https://www.tutorialspoint.com/yaml/index.htm
+    Viết theo đúng cú pháp của từng version của docker-compose
+        https://docs.docker.com/compose/compose-file/
     Các lệnh Docker-compose:
         version: chỉ ra phiên bản docker-compose đã sử dụng.
         services: thiết lập các services(containers) muốn cài đặt và chạy.
@@ -475,8 +480,8 @@ Triển khai docker image lên AWS ECS(Amazon Elastic Container Service )
         check by command: aws configure list
     4. Tạo docker image
         AMAZON ECR
-        mkdir nginx
-        cd nginx
+        mkdir web
+        cd web
         vi Dockerfile
             FROM nginx
             COPY html /usr/share/nginx/html
