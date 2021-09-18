@@ -1192,4 +1192,5 @@ Add in a Database and Redis into the local Docker-Compose environment
     docker-compose exec app php artisan migrate
     docker-compose stop
     docker-compose up --build -d
+Haproxy làm server cân bằng tải
     
