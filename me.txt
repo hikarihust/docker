@@ -1193,4 +1193,5 @@ Add in a Database and Redis into the local Docker-Compose environment
     docker-compose stop
     docker-compose up --build -d
 Haproxy làm server cân bằng tải
+Sử dụng docker-machine tạo các Docker Host
     
