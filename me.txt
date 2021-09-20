@@ -1208,4 +1208,7 @@ Chạy dịch vụ trên Docker Swarm
             php -S 0.0.0.0:8085 index.php
         docker build -t vudinhquang/swarmtest:php -f Dockerfile .
         docker push vudinhquang/swarmtest:php
+Sử dụng docker stack chạy các dịch vụ trên swarm
+    reservations: Tài nguyên tối thiểu mà các container được cấp ngay
+    restart_policy: Chính sách khởi động lại các container
     
