@@ -1195,4 +1195,17 @@ Add in a Database and Redis into the local Docker-Compose environment
 Haproxy làm server cân bằng tải
 Sử dụng docker-machine tạo các Docker Host
 Khởi tạo và quản lý Docker Swarm
+Chạy dịch vụ trên Docker Swarm
+    node
+        npm install system-sleep
+        docker build -t vudinhquang/swarmtest:node -f Dockerfile .
+        docker run -it --rm vudinhquang/swarmtest:node
+        docker login
+        docker push vudinhquang/swarmtest:node
+    php 
+        yum install php-cli php-pdo php-fpm php-json php-mysqlnd
+            php index.php
+            php -S 0.0.0.0:8085 index.php
+        docker build -t vudinhquang/swarmtest:php -f Dockerfile .
+        docker push vudinhquang/swarmtest:php
     
