@@ -1212,4 +1212,7 @@ Sử dụng docker stack chạy các dịch vụ trên swarm
     reservations: Tài nguyên tối thiểu mà các container được cấp ngay
     restart_policy: Chính sách khởi động lại các container
 Mạng Overlay trong Docker Swarm
+Volume các ổ đĩa trong Docker Swarm
+    smb: https://www.samba.org/
+    docker plugin install --grant-all-permissions vieux/sshfs
     
