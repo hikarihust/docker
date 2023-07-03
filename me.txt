@@ -1,3 +1,6 @@
+
+============================================== utb ==============================================
+
 Cài docker và docker-compose trên EC2/AWS và Windows
     sudo yum update -y
     sudo yum install -y docker
@@ -534,6 +537,7 @@ Triển khai docker image lên AWS ECS(Amazon Elastic Container Service )
         docker rmi -f $(docker images -a -q)
 
 ==============================================================================================================
+                                        udemy
 ==============================================================================================================
 
                     Understanding Docker Run with Volume mounting and important flags step by step
